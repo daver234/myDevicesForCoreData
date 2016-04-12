@@ -17,7 +17,73 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
+        
+        addTestData()
+        
+        let fetchRequest = NSFetchRequest(entityName: "Device")
+        
+        do {
+            if let results = try managedObjectContext.executeFetchRequest(fetchRequest) as? [NSManagedObject] {
+                for result in results {
+                    if let deviceType = result.valueForKey("deviceType") as? String, name = result.valueForKey("name") as? String {
+                        print("got \(deviceType) named \(name)")
+                    }
+                }
+            }
+            
+        } catch {
+            print("There was a fetch error!")
+        }
+        
+        // fetching person
+        let fetchRequestPerson = NSFetchRequest(entityName: "Person")
+        
+        do {
+            if let results = try managedObjectContext.executeFetchRequest(fetchRequestPerson) as? [NSManagedObject] {
+                for result in results {
+                    if let name = result.valueForKey("name") as? String {
+                        print("name \(name)")
+                    }
+                }
+            }
+            
+        } catch {
+            print("There was a fetch error for person!")
+        }
+
+        
         return true
+    }
+    
+    func addTestData() {
+        guard let entity = NSEntityDescription.entityForName("Device", inManagedObjectContext: managedObjectContext), entityPerson = NSEntityDescription.entityForName("Person", inManagedObjectContext: managedObjectContext) else {
+            fatalError("Could not find entity description")
+        }
+        
+        for i in 1...25 {
+            let device = NSManagedObject(entity: entity, insertIntoManagedObjectContext: managedObjectContext)
+            
+            device.setValue("Some Device #\(i)", forKey: "name")
+            device.setValue(i % 3 == 0 ? "Watch" : "iPhone", forKey: "deviceType")
+            
+        }
+        let dave = NSManagedObject(entity: entityPerson, insertIntoManagedObjectContext: managedObjectContext)
+        dave.setValue("Bob", forKey: "name")
+        let joe = NSManagedObject(entity: entityPerson, insertIntoManagedObjectContext: managedObjectContext)
+        joe.setValue("Jane", forKey: "name")
+        
+//        guard let entityPerson = NSEntityDescription.entityForName("Person", inManagedObjectContext: managedObjectContext) else {
+//            fatalError("Could not find Person entity description")
+//        }
+//        
+//        // adding person
+//        for i in 1...25 {
+//            let person = NSManagedObject(entity: entityPerson, insertIntoManagedObjectContext: managedObjectContext)
+//            
+//            person.setValue("Some Person #\(i)", forKey: "name")
+//            
+//            
+//        }
     }
 
     func applicationWillResignActive(application: UIApplication) {
